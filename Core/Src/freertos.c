@@ -82,7 +82,6 @@ void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackTy
   */
 void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
-	printf("Hello\n\r");
   /* USER CODE END Init */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -103,7 +102,6 @@ void MX_FREERTOS_Init(void) {
 
   /* Create the thread(s) */
   /* definition and creation of defaultTask */
-	printf("Hello\n\r");
   osThreadDef(defaultTask, StartDefaultTask, osPriorityRealtime, 0, 512);
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
@@ -129,8 +127,6 @@ void StartDefaultTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-
-	  printf("Hello\n\r");
     osDelay(1);
   }
   /* USER CODE END StartDefaultTask */
