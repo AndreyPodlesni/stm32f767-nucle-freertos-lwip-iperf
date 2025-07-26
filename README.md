@@ -13,7 +13,7 @@ It was created because no official or complete Ethernet example was available fo
 To get Ethernet working reliably, the following were manually configured:
 
 - ETH peripheral descriptors and buffer addresses  
-- LwIP heap memory relocation  
+- LwIP heap memory relocation  to SRAM1 - 64K
 - Custom linker script adjustments for LwIP  
 - Memory Protection Unit (MPU) configuration  
 
