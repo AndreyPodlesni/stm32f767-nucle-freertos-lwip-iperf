@@ -45,7 +45,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
-
+extern struct netif gnetif;
 /* USER CODE END Variables */
 osThreadId defaultTaskHandle;
 
@@ -122,12 +122,15 @@ void StartDefaultTask(void const * argument)
 {
   /* init code for LWIP */
   MX_LWIP_Init();
-  lwiperf_start_tcp_server_default(NULL, NULL);
   /* USER CODE BEGIN StartDefaultTask */
+  lwiperf_start_tcp_server_default(NULL, NULL);
   /* Infinite loop */
   for(;;)
   {
+
+	 // printf("Hello\n\r");
     osDelay(1);
+   // print_ip_adress();
   }
   /* USER CODE END StartDefaultTask */
 }
@@ -136,5 +139,4 @@ void StartDefaultTask(void const * argument)
 /* USER CODE BEGIN Application */
 
 /* USER CODE END Application */
-
 

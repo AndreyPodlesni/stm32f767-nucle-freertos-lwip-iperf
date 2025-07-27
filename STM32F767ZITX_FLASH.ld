@@ -31,6 +31,7 @@
 **
 ******************************************************************************
 */
+
 /* Entry Point */
 ENTRY(Reset_Handler)
 
@@ -43,9 +44,9 @@ _Min_Stack_Size = 0x1000; /* required amount of stack */
 /* Memories definition */
 MEMORY
 {
-  RAM    (xrw)    : ORIGIN = 0x20000000,   LENGTH = 496K
-  SRAM2    (xrw)    : ORIGIN = 0x2007C000,   LENGTH = 16K
-  FLASH    (rx)    : ORIGIN = 0x8000000,   LENGTH = 2048K
+  RAM (xrw)        : ORIGIN = 0x20000000, LENGTH = 320K  /* RAM up to 0x20050000 */
+  LWIP_HEAP (xrw)  : ORIGIN = 0x20050000, LENGTH = 64K   /* LwIP heap reserved region */
+  FLASH (rx)       : ORIGIN = 0x8000000, LENGTH = 2048K
 }
 
 /* Sections */
@@ -86,14 +87,14 @@ SECTIONS
     . = ALIGN(4);
   } >FLASH
 
-  .ARM.extab (READONLY) :
+  .ARM.extab (READONLY) : /* The "READONLY" keyword is only supported in GCC11 and later, remove it if using GCC10 or earlier. */
   {
     . = ALIGN(4);
     *(.ARM.extab* .gnu.linkonce.armextab.*)
     . = ALIGN(4);
   } >FLASH
 
-  .ARM (READONLY) :
+  .ARM (READONLY) : /* The "READONLY" keyword is only supported in GCC11 and later, remove it if using GCC10 or earlier. */
   {
     . = ALIGN(4);
     __exidx_start = .;
@@ -102,7 +103,7 @@ SECTIONS
     . = ALIGN(4);
   } >FLASH
 
-  .preinit_array (READONLY) :
+  .preinit_array (READONLY) : /* The "READONLY" keyword is only supported in GCC11 and later, remove it if using GCC10 or earlier. */
   {
     . = ALIGN(4);
     PROVIDE_HIDDEN (__preinit_array_start = .);
@@ -111,7 +112,7 @@ SECTIONS
     . = ALIGN(4);
   } >FLASH
 
-  .init_array (READONLY) :
+  .init_array (READONLY) : /* The "READONLY" keyword is only supported in GCC11 and later, remove it if using GCC10 or earlier. */
   {
     . = ALIGN(4);
     PROVIDE_HIDDEN (__init_array_start = .);
@@ -121,7 +122,7 @@ SECTIONS
     . = ALIGN(4);
   } >FLASH
 
-  .fini_array (READONLY) :
+  .fini_array (READONLY) : /* The "READONLY" keyword is only supported in GCC11 and later, remove it if using GCC10 or earlier. */
   {
     . = ALIGN(4);
     PROVIDE_HIDDEN (__fini_array_start = .);
@@ -146,12 +147,14 @@ SECTIONS
 
     . = ALIGN(4);
     _edata = .;        /* define a global symbol at data end */
+
   } >RAM AT> FLASH
 
   /* Uninitialized data section into "RAM" Ram type memory */
   . = ALIGN(4);
   .bss :
   {
+    /* This is used by the startup in order to initialize the .bss section */
     _sbss = .;         /* define a global symbol at bss start */
     __bss_start__ = _sbss;
     *(.bss)
@@ -174,34 +177,6 @@ SECTIONS
     . = ALIGN(8);
   } >RAM
 
-  /* =========================== */
-  /*   Added eth_buffer_section  */
-  /* =========================== */
-  .eth_memory (NOLOAD) :
-  {
-    . = ALIGN(4);
-    *(.eth_buffer_section)
-  } >RAM
-
-  /* =========================== */
-  /*    Modification Start       */
-  /* =========================== */
-.lwip_sec (NOLOAD) :
-{
-  . = ALIGN(4);
-  *(.RxDecripSection)
-  *(.TxDecripSection)
-} >SRAM2
-
-.LwIPHeap (NOLOAD) :
-{
-  . = ALIGN(4);
-  *(.LwIPHeap)
-} >RAM
-  /* ========================= */
-  /*    Modification End       */
-  /* ========================= */
-
   /* Remove information from the compiler libraries */
   /DISCARD/ :
   {
@@ -211,5 +186,30 @@ SECTIONS
   }
 
   .ARM.attributes 0 : { *(.ARM.attributes) }
-}
 
+  /* Ethernet Descriptors Section */
+  .ethernet_descriptors (NOLOAD) :
+  {
+    . = ALIGN(4);
+    KEEP(*(.RxDecripSection))
+    KEEP(*(.TxDecripSection))
+    . = ALIGN(4);
+  } >RAM
+
+  /* Ethernet Rx Buffers Section */
+  .Rx_PoolSection (NOLOAD) :
+  {
+    . = ALIGN(4);
+    KEEP(*(.Rx_PoolSection))
+    . = ALIGN(4);
+  } >RAM
+
+
+  .lwip_heap (NOLOAD) :
+  {
+    . = ALIGN(4);
+    KEEP(*(.lwip_heap))
+    . = ALIGN(4);
+  } >LWIP_HEAP
+
+}
